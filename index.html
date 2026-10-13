@@ -133,7 +133,7 @@ nav .btn{padding:13px 22px;font-size:14px}
 .statement{position:relative;padding:150px 0 120px;overflow:hidden}
 .statement .wrap{position:relative;z-index:2}
 .statement p.big{font-size:clamp(30px,4.6vw,64px);font-weight:800;letter-spacing:-.04em;line-height:1.1;max-width:1100px;color:var(--navy)}
-.statement p.big span{opacity:.12;transition:opacity .25s}
+.statement p.big span{opacity:.18;transition:opacity .15s}
 .statement p.big span.on{opacity:1}
 .statement p.big .hl{color:var(--navy-3)}
 .statement .row{display:flex;justify-content:space-between;align-items:center;gap:30px;margin-top:56px;flex-wrap:wrap}
@@ -455,7 +455,7 @@ footer a:hover{color:#fff}
   <div class="blobs"><b></b><b></b><b></b></div>
   <div class="wrap">
     <p class="big" id="words">Airbrushed perfection. Fad diets. One size fits all plans. We've been sold it all and it doesn't work. This app is different. Real training. Real food. <span class="hl">Strength that comes from within.</span></p>
-    <div class="row rv">
+    <div class="row">
       <p class="lede">Everything I actually do to train, eat and stay consistent, in your pocket<br>No guesswork, no starting over every Monday</p>
       <a href="#inside" class="btn btn-o">Take A Look <span class="arr">→</span></a>
     </div>
@@ -715,7 +715,7 @@ const sio=new IntersectionObserver(es=>es.forEach(e=>{if(!e.isIntersecting)retur
 steps.forEach(s=>sio.observe(s));steps[0].classList.add('act');
 
 // scroll-linked
-let raf=0;const tick=()=>{raf=0;const r=W.getBoundingClientRect(),vh=innerHeight;const p=Math.min(1,Math.max(0,(vh*.85-r.top)/(r.height+vh*.35)));const n=Math.round(p*words.length);words.forEach((w,k)=>w.classList.toggle('on',k<n))};
+let raf=0,best=0;const tick=()=>{raf=0;const r=W.getBoundingClientRect(),vh=innerHeight;const p=Math.min(1,Math.max(0,(vh*.95-r.top)/(vh*.5)));const n=Math.round(p*words.length);if(n>best){best=n;words.forEach((w,k)=>w.classList.toggle('on',k<n))}};
 addEventListener('scroll',()=>{if(!raf)raf=requestAnimationFrame(tick)},{passive:true});tick();
 
 // tilt + spotlight
