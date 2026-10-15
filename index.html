@@ -261,6 +261,14 @@ nav .btn{padding:13px 22px;font-size:14px}
 .pricing .wrap{position:relative;z-index:2}
 .pricing .head{text-align:center;margin-bottom:36px}
 .pricing .head h2{margin:18px 0 14px}
+.cur{display:inline-flex;position:relative;background:rgba(255,255,255,.7);border-radius:999px;padding:4px;box-shadow:inset 0 0 0 1px var(--line);margin-bottom:10px}
+.cur button{position:relative;z-index:2;border:0;background:none;font-family:inherit;font-weight:700;font-size:13px;padding:8px 16px;border-radius:999px;cursor:pointer;color:var(--muted);display:flex;align-items:center;gap:7px;transition:color .3s}
+.cur button .fl{font-size:15px;line-height:1}
+.cur button.on{color:var(--navy)}
+.cur button:hover{color:var(--navy)}
+.cur .cknob{position:absolute;z-index:1;top:4px;bottom:4px;border-radius:999px;background:#fff;box-shadow:0 4px 14px -6px rgba(13,20,82,.35);transition:all .4s cubic-bezier(.2,.8,.2,1)}
+.curnote{font-size:12px;font-weight:600;color:var(--muted);margin-bottom:22px}
+.pcard .amt .code{align-self:flex-end;font-size:18px;font-weight:800;color:var(--sky);margin:0 0 16px 8px;letter-spacing:.02em}
 .switch{display:inline-flex;position:relative;background:#fff;border-radius:999px;padding:6px;box-shadow:0 10px 30px -16px rgba(13,20,82,.35);margin-bottom:40px}
 .switch button{position:relative;z-index:2;border:0;background:none;font-family:inherit;font-weight:700;font-size:15px;padding:14px 28px;border-radius:999px;cursor:pointer;color:var(--muted);transition:color .3s}
 .switch button.on{color:#fff}
@@ -390,6 +398,7 @@ footer a:hover{color:#fff}
   .switch button em{display:none}
   .pcard .l,.pcard .r{padding:32px 24px}
   .pcard .amt b{font-size:92px}
+  .pcard .amt .code{font-size:15px;margin-bottom:12px}
   .faq{padding:70px 0}
   .faq .wrap{gap:20px}
   .final{padding:120px 0 0}.final .huge{margin-top:70px}
@@ -607,6 +616,12 @@ footer a:hover{color:#fff}
       <p class="lede rv d1">Every plan gets you the full app<br>The longer you commit, the more you save</p>
     </div>
     <div style="text-align:center" class="rv">
+      <div class="cur" id="cur">
+        <span class="cknob" id="curKnob"></span>
+        <button data-c="USD" class="on"><span class="fl">🇺🇸</span>USD</button>
+        <button data-c="CAD"><span class="fl">🇨🇦</span>CAD</button>
+      </div>
+      <div class="curnote" id="curNote">Showing US dollar pricing</div>
       <div class="switch" id="switch">
         <span class="knob" id="knob"></span>
         <button data-p="monthly">Monthly</button>
@@ -618,7 +633,7 @@ footer a:hover{color:#fff}
       <div class="l dark">
         <div class="blobs"><b></b><b></b><b></b></div>
         <div class="nm" id="pName">Yearly · Founding Rate</div>
-        <div class="amt"><sup>$</sup><b id="pAmt">299</b></div>
+        <div class="amt"><sup>$</sup><b id="pAmt">299</b><span class="code" id="pCode">USD</span></div>
         <div class="per" id="pPer">per year · just $24.92 a month</div>
         <div class="badge" id="pBadge">Save 29% vs monthly</div>
         <a href="#CHECKOUT-YEARLY" class="btn btn-w go" id="pGo"><span>Join Yearly</span> <span class="arr">→</span></a>
@@ -653,6 +668,7 @@ footer a:hover{color:#fff}
       <details class="qa"><summary>Do I need a gym?<i></i></summary><p>The programs are built for the gym, with full sessions ready to go each day.</p></details>
       <details class="qa"><summary>How does the nutrition side work?<i></i></summary><p>You get a daily calorie and macro target, Kate's recipes with the macros worked out, and a food log with a barcode scanner so tracking takes seconds.</p></details>
       <details class="qa"><summary>Can I cancel anytime?<i></i></summary><p>Yes. Your plan renews automatically and you can cancel before your next billing date.</p></details>
+      <details class="qa"><summary>Can I pay in Canadian dollars?<i></i></summary><p>Yes. Use the USD / CAD switch above the plans to see pricing and check out in your currency. If you're in Canada we'll show CAD automatically.</p></details>
       <details class="qa"><summary>What phones does it work on?<i></i></summary><p>The app is available on iPhone and Android. After checkout you'll get an email with your download link and login.</p></details>
     </div>
   </div>
@@ -724,19 +740,45 @@ if(fine){$$('[data-tilt]').forEach(el=>{
 if(fine){$$('.btn').forEach(b=>{b.addEventListener('mousemove',e=>{const r=b.getBoundingClientRect();b.style.transform=`translate(${(e.clientX-r.left-r.width/2)*.12}px,${(e.clientY-r.top-r.height/2)*.2}px)`});b.addEventListener('mouseleave',()=>b.style.transform='')})}
 
 // pricing
-const D={
-  monthly:{n:'Monthly',a:35,p:'per month',b:'Most flexible',g:'Join Monthly',h:'#CHECKOUT-MONTHLY',f:'Billed monthly · cancel anytime',y:0},
-  quarterly:{n:'Quarterly',a:75,p:'every 3 months · just $25 a month',b:'Save 29% vs monthly',g:'Join Quarterly',h:'#CHECKOUT-QUARTERLY',f:'Billed every 3 months · cancel anytime',y:0},
-  yearly:{n:'Yearly · Founding Rate',a:299,p:'per year · just $24.92 a month',b:'Save 29% vs monthly',g:'Join Yearly',h:'#CHECKOUT-YEARLY',f:'Billed yearly · cancel anytime',y:1}
+// ===== EDIT PRICES + CHECKOUT LINKS HERE =====
+const PRICES={
+  USD:{monthly:35,quarterly:75,yearly:299},
+  CAD:{monthly:49,quarterly:105,yearly:409}
 };
-const knob=$('#knob'),btns=$$('#switch button'),amt=$('#pAmt');
-const mv=b=>{knob.style.left=b.offsetLeft+'px';knob.style.width=b.offsetWidth+'px'};
-const count=to=>{const fr=+amt.textContent,t0=performance.now();const st=t=>{const k=Math.min(1,(t-t0)/600),e=1-Math.pow(1-k,3);amt.textContent=Math.round(fr+(to-fr)*e);if(k<1)requestAnimationFrame(st)};requestAnimationFrame(st)};
-const pick=key=>{const d=D[key];btns.forEach(b=>b.classList.toggle('on',b.dataset.p===key));mv(btns.find(b=>b.dataset.p===key));
-  $('#pName').textContent=d.n;$('#pPer').textContent=d.p;$('#pBadge').textContent=d.b;$('#pFine').textContent=d.f;const g=$('#pGo');g.href=d.h;g.firstElementChild.textContent=d.g;count(d.a);
-  $$('.pcard li.y').forEach(li=>li.classList.toggle('x',!d.y))};
-btns.forEach(b=>b.addEventListener('click',()=>pick(b.dataset.p)));
-const fix=()=>mv($('#switch .on'));addEventListener('load',fix);addEventListener('resize',fix);requestAnimationFrame(fix);
+const LINKS={
+  USD:{monthly:'#CHECKOUT-USD-MONTHLY',quarterly:'#CHECKOUT-USD-QUARTERLY',yearly:'#CHECKOUT-USD-YEARLY'},
+  CAD:{monthly:'#CHECKOUT-CAD-MONTHLY',quarterly:'#CHECKOUT-CAD-QUARTERLY',yearly:'#CHECKOUT-CAD-YEARLY'}
+};
+// =============================================
+const PLAN={
+  monthly:{n:'Monthly',months:1,per:'per month',g:'Join Monthly',f:'Billed monthly',y:0},
+  quarterly:{n:'Quarterly',months:3,per:'every 3 months',g:'Join Quarterly',f:'Billed every 3 months',y:0},
+  yearly:{n:'Yearly · Founding Rate',months:12,per:'per year',g:'Join Yearly',f:'Billed yearly',y:1}
+};
+const isCA=(()=>{try{const tz=Intl.DateTimeFormat().resolvedOptions().timeZone||'';const langs=(navigator.languages||[navigator.language||'']).join(',');return /-CA\b/i.test(langs)||/^America\/(Toronto|Vancouver|Edmonton|Winnipeg|Halifax|St_Johns|Regina|Montreal|Moncton|Whitehorse|Yellowknife|Iqaluit|Glace_Bay|Goose_Bay|Swift_Current|Dawson_Creek|Fort_Nelson|Creston|Rankin_Inlet|Cambridge_Bay|Inuvik|Atikokan|Blanc-Sablon)$/.test(tz)}catch(e){return false}})();
+let ccy='USD';try{ccy=localStorage.getItem('dd_cur')||(isCA?'CAD':'USD')}catch(e){ccy=isCA?'CAD':'USD'}
+let plan='yearly';
+const knob=$('#knob'),btns=$$('#switch button'),amt=$('#pAmt'),cbtns=$$('#cur button'),cknob=$('#curKnob');
+const mv=(k,b)=>{if(!b)return;k.style.left=b.offsetLeft+'px';k.style.width=b.offsetWidth+'px'};
+const count=to=>{const fr=+amt.textContent||0,t0=performance.now();const st=t=>{const k=Math.min(1,(t-t0)/600),e=1-Math.pow(1-k,3);amt.textContent=Math.round(fr+(to-fr)*e);if(k<1)requestAnimationFrame(st)};requestAnimationFrame(st)};
+const money=v=>'$'+(Math.round(v*100)/100).toFixed(2).replace(/\.00$/,'');
+const render=()=>{
+  const d=PLAN[plan],P=PRICES[ccy],price=P[plan],mo=price/d.months,save=Math.round((1-mo/P.monthly)*100);
+  btns.forEach(b=>b.classList.toggle('on',b.dataset.p===plan));mv(knob,btns.find(b=>b.dataset.p===plan));
+  cbtns.forEach(b=>b.classList.toggle('on',b.dataset.c===ccy));mv(cknob,cbtns.find(b=>b.dataset.c===ccy));
+  $('#pName').textContent=d.n;$('#pCode').textContent=ccy;
+  $('#pPer').textContent=d.months>1?`${d.per} · just ${money(mo)} ${ccy} a month`:d.per;
+  $('#pBadge').textContent=save>0?`Save ${save}% vs monthly`:'Most flexible';
+  $('#pFine').textContent=`${d.f} in ${ccy} · cancel anytime`;
+  const g=$('#pGo');g.href=LINKS[ccy][plan];g.firstElementChild.textContent=d.g;
+  $('#curNote').textContent=ccy==='CAD'?'Showing Canadian dollar pricing':'Showing US dollar pricing';
+  count(price);
+  $$('.pcard li.y').forEach(li=>li.classList.toggle('x',!d.y));
+};
+btns.forEach(b=>b.addEventListener('click',()=>{plan=b.dataset.p;render()}));
+cbtns.forEach(b=>b.addEventListener('click',()=>{ccy=b.dataset.c;try{localStorage.setItem('dd_cur',ccy)}catch(e){}render()}));
+const fix=()=>{mv(knob,$('#switch .on'));mv(cknob,$('#cur .on'))};addEventListener('load',fix);addEventListener('resize',fix);
+amt.textContent=PRICES[ccy][plan];render();requestAnimationFrame(fix);
 })();
 </script>
 </body>
